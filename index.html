@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Weekly Planner</title>
+    <style>
+        /* YOUR FAVORITE DESIGN STYLE */
+        body {
+            background-color: #ffffff;
+            color: #1a1a1a;
+            font-family: -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding-top: 60px;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+
+        .subtitle {
+            color: #8e8e93;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        /* INPUT AREA */
+        #task-form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 40px;
+        }
+
+        #task-input {
+            width: 100%;
+            border: none;
+            border-bottom: 1px solid #eaeaea;
+            padding: 15px 0;
+            font-size: 18px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        #task-input:focus {
+            border-bottom-color: #000;
+        }
+
+        #task-time {
+            width: fit-content;
+            margin-top: 10px;
+            border: none;
+            background: #f4f4f4;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: #8e8e93;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* SECTIONS */
+        .time-section {
+            margin-top: 30px;
+        }
+
+        .time-section h3 {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aeaeae;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #f2f2f2;
+            padding-bottom: 5px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #fafafa;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .task-content {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+
+        .checkbox {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #e5e5e5;
+            border-radius: 50%;
+            margin-right: 15px;
+            transition: 0.2s;
+        }
+
+        /* COMPLETED STATE */
+        li.done .text {
+            text-decoration: line-through;
+            color: #c7c7cc;
+        }
+
+        li.done .checkbox {
+            background-color: #000;
+            border-color: #000;
+        }
+
+        /* CANCEL BUTTON */
+        .cancel-btn {
+            background: none;
+            border: none;
+            color: #d1d1d6;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 5px;
+            opacity: 0;
+            transition: opacity 0.2;
+        }
+
+        li:hover .cancel-btn {
+            opacity: 1;
+        }
+
+        .cancel-btn:hover {
+            color: #ff3b30;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        <header>
+            <h1 id="date-display">Today</h1>
+            <p class="subtitle">Focus on what matters.</p>
+        </header>
+        
+        <form id="task-form">
+            <input type="text" id="task-input" placeholder="+ Add a new task..." autocomplete="off" required>
+            <select id="task-time">
+                <option value="today">Today</option>
+                <option value="tomorrow">Tomorrow</option>
+                <option value="later">Later this Month</option>
+            </select>
+        </form>
+
+        <div class="time-section">
+            <h3>Today</h3>
+            <ul id="list-today"></ul>
+        </div>
+
+        <div class="time-section">
+            <h3>Tomorrow</h3>
+            <ul id="list-tomorrow"></ul>
+        </div>
+
+        <div class="time-section">
+            <h3>Later</h3>
+            <ul id="list-later"></ul>
+        </div>
+    </div>
+
+    <script>
+        const taskForm = document.getElementById('task-form');
+        const taskInput = document.getElementById('task-input');
+        const taskTime = document.getElementById('task-time');
+
+        // Update the header with the actual date
+        document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const text = taskInput.value.trim();
+            if (text === "") return;
+
+            // FIND THE CORRECT LIST
+            const listId = "list-" + taskTime.value;
+            const targetList = document.getElementById(listId);
+
+            // CREATE THE ITEM
+            const li = document.createElement('li');
+            li.innerHTML = `
+                <div class="task-content">
+                    <div class="checkbox"></div>
+                    <span class="text">${text}</span>
+                </div>
+                <button class="cancel-btn">✕</button>
+            `;
+
+            // MARK COMPLETE LOGIC
+            li.querySelector('.task-content').addEventListener('click', () => {
+                li.classList.toggle('done');
+            });
+
+            // DELETE LOGIC
+            li.querySelector('.cancel-btn').addEventListener('click', (e) => {
+                e.stopPropagation(); // Stops it from marking as "done" when clicking X
+                li.style.opacity = '0';
+                setTimeout(() => li.remove(), 200);
+            });
+
+            // ADD TO SCREEN
+            targetList.appendChild(li);
+            
+            // CLEAR INPUT
+            taskInput.value = '';
+        });
+    </script>
+</body>
+</html>
